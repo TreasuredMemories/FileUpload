@@ -69,22 +69,24 @@ class miniTools:
         return args.l
 
     # 文件在本地指定文件夹做一次备份
-    def backup_into_local(self,url):
-        # if(not os.path.exists(self.local_path)):
-        #     os.mkdir(self.local_path)
-        # with open(self.file_path ,'wb+') as f:
-        #     f.write("")
-        pass
+    def backup_into_local(self,fileName,path):
+        path = self.local_path+path
+        if(not os.path.exists(path)):
+            os.makedirs(path.replace("\\","/"))
+        with open(self.file_path,'rb') as f:
+            with open(path+"/"+fileName,'wb') as dest:
+                dest.write(f.read())
+
     # 上传文件
     def upload(self):
         fileurl = self.get_cmd_input()
-        self.data['file'] = ("2.jpg", open(fileurl, 'rb').read())
-        encode_data = encode_multipart_formdata(self.data)
-        self.data = encode_data[0]
-        self.headers['Content-Type'] = encode_data[1]
-        result = requests.post(self.url, headers=self.headers, data=self.data).json()
-
-        print(result["result"])
+        self.data['multipartFile'] = (os.path.basename(fileurl)+"", open(self.file_path, 'rb').read())
+        encode_data=encode_multipart_formdata(self.data)
+        self.headers["Content-Type"]=encode_data[1]
+        result = requests.post(self.url, headers=self.headers, data=encode_data[0]).json()
+        if(result["code"]==200):
+            self.backup_into_local(result["result"]["filename"],result["result"]["filePath"])
+            print(result["result"]["orig"])
 
 
 if __name__ == '__main__':

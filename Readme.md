@@ -1,4 +1,5 @@
-#File Upload
+##File Upload
+
 >This project provides a solution to backup you files(not only photos) to remote server.
 
 ##Configurations
